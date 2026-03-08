@@ -20,7 +20,6 @@ export default {
         <h3>🛡️ Cloudflare Worker 日志脱敏</h3>
         <p>所有处理均在您的浏览器本地完成，不会发送到任何服务器。</p>
         <p>对ipv4/6 进行脱敏（本地/私有地址不脱敏）</p>
-        <p>@AI</p>
         
         <label>原始日志:</label>
         <textarea id="input" placeholder="粘贴日志到这里..."></textarea>
