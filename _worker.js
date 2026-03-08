@@ -34,6 +34,18 @@ export default {
             const input = document.getElementById('input');
             const output = document.getElementById('output');
 
+            // 判断是否为 IPv6 本地/私有地址
+            function isLocalIPv6(ip) {
+                const lower = ip.toLowerCase();
+                // ::1 回环地址
+                if (lower === '::1') return true;
+                // fe80::/10 链路本地
+                if (/^fe[89ab][0-9a-f]:/i.test(lower)) return true;
+                // fc00::/7 唯一本地地址 (fc 或 fd 开头)
+                if (/^f[cd]/i.test(lower)) return true;
+                return false;
+            }
+
             // 实时监听输入，自动脱敏
             input.addEventListener('input', () => {
                 let text = input.value;
@@ -44,18 +56,20 @@ export default {
                     if (
                         /^10\\./.test(match) ||
                         /^127\\./.test(match) ||
-                        /^169\.254\\./.test(match) ||
-                        /^192\.168\\./.test(match) ||
+                        /^169\\.254\\./.test(match) ||
+                        /^192\\.168\\./.test(match) ||
                         /^172\\.(1[6-9]|2\\d|3[01])\\./.test(match)
                     ) return match;
                     return '0.0.0.0';
                 });
 
-                // 2. 替换 IPv6 (排除时间戳)
-                // 匹配规则: 至少两个冒号分隔的 hex 块
+                // 2. 替换 IPv6，排除时间戳和本地/私有地址
+                // 排除: ::1 / fe80::/10 / fc00::/7 (fc, fd)
                 text = text.replace(/\\b([0-9a-fA-F]{1,4}:){2,}[0-9a-fA-F]{1,4}\\b/g, (match) => {
                     // 如果长得像时间 (HH:MM:SS)，则忽略
                     if (/^\\d{2}:\\d{2}:\\d{2}$/.test(match)) return match;
+                    // 如果是 IPv6 本地/私有地址，则忽略
+                    if (isLocalIPv6(match)) return match;
                     return '::';
                 });
 
